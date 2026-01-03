@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Soenneker.Enums.UnitOfTime;
+using System;
 using System.Diagnostics.Contracts;
-using Soenneker.Enums.UnitOfTime;
+using System.Runtime.CompilerServices;
+using Soenneker.Enums.DayOfWeek;
 
 namespace Soenneker.Extensions.DateTimeOffsets.Days;
 
@@ -170,5 +172,26 @@ public static class DateTimeOffsetsDayExtension
         }
 
         return TimeZoneInfo.ConvertTimeToUtc(localUnspecified, tz);
+    }
+
+    /// <summary>
+    /// Converts the specified <paramref name="dateTimeOffset"/> to a <see cref="DayOfWeekType"/>,
+    /// which represents the day of the week.
+    /// </summary>
+    /// <param name="dateTimeOffset">
+    /// The datetime offset from which to extract the day of the week.
+    /// </param>
+    /// <returns>
+    /// A <see cref="DayOfWeekType"/> representing the day of the week for the specified datetime.
+    /// </returns>
+    /// <remarks>
+    /// Uses the local calendar day represented by the <see cref="DateTimeOffset"/> value.
+    /// No timezone or offset conversion is performed.
+    /// </remarks>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DayOfWeekType ToDayOfWeekType(this DateTimeOffset dateTimeOffset)
+    {
+        return DayOfWeekType.FromValue(dateTimeOffset.DayOfWeek.ToString());
     }
 }
