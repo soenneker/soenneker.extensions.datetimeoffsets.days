@@ -2,7 +2,6 @@ using System;
 using Soenneker.Enums.DayOfWeek;
 using Soenneker.Extensions.DateTimeOffsets.Days;
 using Soenneker.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Extensions.DateTimeOffsets.Days.Tests;
 
@@ -16,7 +15,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
 
     #region Non-timezone day boundaries – weird scenarios
 
-    [Fact]
+    [Test]
     public void ToStartOfDay_ExactlyAtMidnight_ReturnsSame()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero);
@@ -24,7 +23,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero), result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfDay_OneTickBeforeMidnight_ReturnsPreviousDayStart()
     {
         var dto = new DateTimeOffset(2024, 6, 16, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
@@ -32,7 +31,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero), result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfDay_OneTickAfterMidnight_ReturnsCurrentDayStart()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero).AddTicks(1);
@@ -40,7 +39,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero), result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfDay_PreservesNonZeroOffset()
     {
         var offset = TimeSpan.FromHours(14);
@@ -50,7 +49,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2024, 7, 4, 0, 0, 0, offset), result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfDay_NegativeOffset()
     {
         var offset = TimeSpan.FromHours(-12);
@@ -60,7 +59,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2024, 1, 1, 0, 0, 0, offset), result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfDay_LeapYearFeb29_LastTickBeforeMar1()
     {
         var dto = new DateTimeOffset(2024, 2, 29, 15, 30, 0, TimeSpan.Zero);
@@ -69,7 +68,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(expected, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfDay_YearBoundary_LastTickOfDec31()
     {
         var dto = new DateTimeOffset(2023, 12, 31, 23, 59, 59, TimeSpan.Zero);
@@ -78,7 +77,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(expected, result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfNextDay_LeapYearFeb29_ReturnsMar1()
     {
         var dto = new DateTimeOffset(2024, 2, 29, 12, 0, 0, TimeSpan.Zero);
@@ -86,7 +85,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero), result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfPreviousDay_Jan1_ReturnsDec31PreviousYear()
     {
         var dto = new DateTimeOffset(2024, 1, 1, 0, 0, 1, TimeSpan.Zero);
@@ -94,7 +93,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(new DateTimeOffset(2023, 12, 31, 0, 0, 0, TimeSpan.Zero), result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfPreviousDay_Mar1_ReturnsLastTickOfFeb29InLeapYear()
     {
         var dto = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero);
@@ -103,7 +102,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(expected, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfNextDay_LastDayOfMonth_EndOfNextMonthFirstDay()
     {
         var dto = new DateTimeOffset(2024, 1, 31, 23, 59, 59, TimeSpan.Zero);
@@ -112,7 +111,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(expected, result);
     }
 
-    [Fact]
+    [Test]
     public void AllDayBoundaries_ChainCorrectly()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.Zero);
@@ -125,7 +124,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(nextStart, end.AddTicks(1));
     }
 
-    [Fact]
+    [Test]
     public void DateTimeOffset_MinValue_DoesNotThrow()
     {
         var dto = DateTimeOffset.MinValue;
@@ -135,7 +134,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(dto.AddDays(1).AddTicks(-1), end);
     }
 
-    [Fact]
+    [Test]
     public void SubMillisecondPrecision_PreservedInStartOfDay()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 12, 30, 45, 123, TimeSpan.Zero).AddTicks(4567);
@@ -147,14 +146,14 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
 
     #region Time-zone methods – weird scenarios
 
-    [Fact]
+    [Test]
     public void ToStartOfTzDay_NullTimeZone_ThrowsArgumentNullException()
     {
         var dto = DateTimeOffset.UtcNow;
         Assert.Throws<ArgumentNullException>(() => dto.ToStartOfTzDay(null!));
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzDay_UtcTimeZone_SameAsNonTzForUtcInput()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.Zero);
@@ -164,7 +163,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(TimeSpan.Zero, tzResult.Offset);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzDay_InputWithNonUtcOffset_NormalizesToUtc()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.FromHours(5));
@@ -177,7 +176,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(0, tzResult.Minute);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzDay_DuringDstGap_EasternTime()
     {
         var tz = GetEasternTimeZone();
@@ -193,7 +192,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(10, result.Day);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzDay_DuringDstFold_EasternTime()
     {
         var tz = GetEasternTimeZone();
@@ -206,7 +205,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(3, result.Day);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfTzDay_IsOneTickBeforeStartOfNextTzDay()
     {
         var tz = TimeZoneInfo.Utc;
@@ -216,7 +215,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(startOfNext.AddTicks(-1), endOfDay);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfPreviousTzDay_IsOneTickBeforeStartOfTzDay()
     {
         var tz = TimeZoneInfo.Utc;
@@ -226,7 +225,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(startOfDay.AddTicks(-1), endOfPrev);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfPreviousTzDay_AcrossYearBoundary()
     {
         var tz = TimeZoneInfo.Utc;
@@ -242,21 +241,21 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
 
     #region ToDayOfWeekType – weird scenarios
 
-    [Fact]
+    [Test]
     public void ToDayOfWeekType_Sunday()
     {
         var dto = new DateTimeOffset(2024, 6, 9, 12, 0, 0, TimeSpan.Zero); // Sunday
         Assert.Equal(DayOfWeekType.Sunday, dto.ToDayOfWeekType());
     }
 
-    [Fact]
+    [Test]
     public void ToDayOfWeekType_Saturday_FallbackCase()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 12, 0, 0, TimeSpan.Zero); // Saturday
         Assert.Equal(DayOfWeekType.Saturday, dto.ToDayOfWeekType());
     }
 
-    [Fact]
+    [Test]
     public void ToDayOfWeekType_AllSevenDays()
     {
         Assert.Equal(DayOfWeekType.Sunday, new DateTimeOffset(2024, 6, 9, 0, 0, 0, TimeSpan.Zero).ToDayOfWeekType());
@@ -268,7 +267,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
         Assert.Equal(DayOfWeekType.Saturday, new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero).ToDayOfWeekType());
     }
 
-    [Fact]
+    [Test]
     public void ToDayOfWeekType_OffsetDoesNotChangeCalendarDay()
     {
         // Same UTC moment, different offsets - calendar day can differ
