@@ -4,7 +4,8 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.datetimeoffsets.days/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.datetimeoffsets.days/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.DateTimeOffsets.Days
-A collection of helpful DateTimeOffset day extension methods.
+
+Computes current, previous, and next day boundaries for `DateTimeOffset`, either in its stored offset or in a named time zone with UTC results.
 
 ## Installation
 
@@ -12,28 +13,52 @@ A collection of helpful DateTimeOffset day extension methods.
 dotnet add package Soenneker.Extensions.DateTimeOffsets.Days
 ```
 
-## Quick start
+## Boundaries in the stored offset
 
 ```csharp
 using Soenneker.Extensions.DateTimeOffsets.Days;
 
-DateTimeOffset dateTimeOffset = DateTimeOffset.UtcNow;
-var result = dateTimeOffset.ToStartOfDay();
+DateTimeOffset value = new(2026, 8, 29, 16, 42, 30, TimeSpan.FromHours(-4));
+
+DateTimeOffset start = value.ToStartOfDay();
+DateTimeOffset end = value.ToEndOfDay();
+DateTimeOffset previousStart = value.ToStartOfPreviousDay();
+DateTimeOffset nextEnd = value.ToEndOfNextDay();
 ```
 
-## Common operations
+| Method | Result |
+| --- | --- |
+| `ToStartOfDay()` | Midnight on the stored calendar date |
+| `ToEndOfDay()` | One tick before the next stored date |
+| `ToStartOfPreviousDay()` | Midnight on the previous stored date |
+| `ToEndOfPreviousDay()` | One tick before the current stored date |
+| `ToStartOfNextDay()` | Midnight on the next stored date |
+| `ToEndOfNextDay()` | One tick before the date after next |
 
-- `ToStartOfDay()` - Returns the start of the day that contains `dateTimeOffset` (00:00:00.0000000). This method does not convert time zones and does not normalize to UTC; it operates on the calendar date implied by `dateTimeOffset` and preserves `DateTimeOffset.Offset`.
-- `ToEndOfDay()` - Returns the end of the day that contains `dateTimeOffset` (one tick before the next day).
-- `ToStartOfNextDay()` - Returns the start of the next day relative to `dateTimeOffset` (00:00:00.0000000 of the following day).
-- `ToStartOfPreviousDay()` - Returns the start of the previous day relative to `dateTimeOffset` (00:00:00.0000000 of the prior day).
-- `ToEndOfPreviousDay()` - Returns the end of the previous day relative to `dateTimeOffset` (one tick before the current day begins).
-- `ToEndOfNextDay()` - Returns the end of the next day relative to `dateTimeOffset` (one tick before the day after next begins).
-- `ToStartOfTzDay()` - Computes the start of the local day in `tz` that contains the instant `utcInstant`, returning the result as a UTC instant. This method determines the local calendar date in `tz` for the given instant, constructs local midnight (wall time), and converts that wall time to UTC using the time zone's adjustment rules.
-- `ToStartOfPreviousTzDay()` - Computes the start of the previous local day in `tz` relative to the instant `utcInstant`, returning the result as a UTC instant. Equivalent to `ToStartOfTzDayCore(utcInstant, tz, -1)`.
-- `ToStartOfNextTzDay()` - Computes the start of the next local day in `tz` relative to the instant `utcInstant`, returning the result as a UTC instant. Equivalent to `ToStartOfTzDayCore(utcInstant, tz, 1)`.
-- `ToEndOfTzDay()` - Computes the end of the local day in `tz` that contains the instant `utcInstant`, returning the result as a UTC instant.
-- `ToEndOfPreviousTzDay()` - Computes the end of the previous local day in `tz` relative to the instant `utcInstant`, returning the result as a UTC instant.
-- `ToEndOfNextTzDay()` - Computes the end of the next local day in `tz` relative to the instant `utcInstant`, returning the result as a UTC instant.
+These methods preserve the value's offset and use calendar arithmetic on its existing fields. They do not consult a `TimeZoneInfo`, so that fixed offset does not automatically change across DST.
 
-The package also includes one additional operation for more specialized cases.
+## Boundaries in a named time zone
+
+```csharp
+TimeZoneInfo eastern = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+DateTimeOffset instant = new(2026, 8, 29, 18, 0, 0, TimeSpan.Zero);
+
+DateTimeOffset localDayStartUtc = instant.ToStartOfTzDay(eastern);
+DateTimeOffset localDayEndUtc = instant.ToEndOfTzDay(eastern);
+```
+
+Time-zone variants determine the instant's local calendar date and return the current, previous, or next local-day boundary with offset `+00:00`:
+
+- `ToStartOfTzDay()` / `ToEndOfTzDay()`
+- `ToStartOfPreviousTzDay()` / `ToEndOfPreviousTzDay()`
+- `ToStartOfNextTzDay()` / `ToEndOfNextTzDay()`
+
+Any input offset is accepted because `DateTimeOffset` identifies an instant. A midnight inside a time-zone gap advances minute-by-minute to the first valid local minute. An ambiguous midnight selects the earlier UTC instant. End values are one tick before the following valid local-day boundary, so 23-hour and 25-hour days are not treated as fixed 24-hour intervals.
+
+## Day-of-week mapping
+
+```csharp
+DayOfWeekType day = value.ToDayOfWeekType();
+```
+
+`ToDayOfWeekType()` maps the `System.DayOfWeek` of the value's stored calendar date to `Soenneker.Enums.DayOfWeek.DayOfWeekType`. It does not perform a time-zone conversion first.

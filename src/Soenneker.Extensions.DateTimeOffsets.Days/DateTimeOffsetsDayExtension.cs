@@ -278,8 +278,8 @@ public static class DateTimeOffsetsDayExtension
     /// </returns>
     /// <remarks>
     /// <para>
-    /// For invalid local times (spring-forward gaps), this method selects the earliest valid local instant at or after
-    /// <paramref name="localUnspecified"/> by probing forward and optionally tightening toward the gap edge.
+    /// For invalid local times (time-zone gaps), this method selects the earliest valid local minute at or after
+    /// <paramref name="localUnspecified"/>.
     /// </para>
     /// <para>
     /// For ambiguous local times (fall-back folds), this method selects the earlier UTC instant. This corresponds to choosing
@@ -289,38 +289,8 @@ public static class DateTimeOffsetsDayExtension
     [Pure]
     private static DateTime ConvertLocalToUtcRobust(DateTime localUnspecified, TimeZoneInfo tz)
     {
-        // Handle invalid time (gap): jump first, then tighten.
-        if (tz.IsInvalidTime(localUnspecified))
-        {
-            // Most gaps are ~1 hour. Jump an hour; if still invalid, grow.
-            DateTime probe = localUnspecified.AddHours(1);
-
-            // If this zone has larger/odd gaps, expand quickly (rare).
-            int hops = 0;
-            while (tz.IsInvalidTime(probe))
-            {
-                probe = probe.AddHours(1);
-                if (++hops >= 6) // extreme safety; should basically never hit
-                    probe = probe.AddMinutes(1);
-            }
-
-            // Optionally tighten to earliest valid minute in the hour window.
-            // Binary-ish search on minutes (max 6 probes) after we found a valid probe.
-            DateTime lo = localUnspecified;
-            DateTime hi = probe;
-            for (int i = 0; i < 6; i++)
-            {
-                DateTime mid = lo.AddMinutes((hi - lo).TotalMinutes / 2);
-                // mid is a double-based op; still tiny and very rare path.
-                if (tz.IsInvalidTime(mid))
-                    lo = mid;
-                else
-                    hi = mid;
-            }
-
-            // hi should be valid or very near-valid; ConvertTimeToUtc will finalize.
-            return TimeZoneInfo.ConvertTimeToUtc(hi, tz);
-        }
+        while (tz.IsInvalidTime(localUnspecified))
+            localUnspecified = localUnspecified.AddMinutes(1);
 
         // Handle ambiguous time (fold): choose earlier UTC instant (local - larger offset)
         if (tz.IsAmbiguousTime(localUnspecified))

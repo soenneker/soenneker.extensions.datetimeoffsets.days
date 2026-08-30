@@ -194,6 +194,22 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     }
 
     [Test]
+    public void ToStartOfTzDay_returns_first_valid_minute_for_non_hour_gap()
+    {
+        TimeZoneInfo.TransitionTime start = TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 0, 0, 0), 6, 1);
+        TimeZoneInfo.TransitionTime end = TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 0, 0, 0), 10, 1);
+        TimeZoneInfo.AdjustmentRule rule = TimeZoneInfo.AdjustmentRule.CreateAdjustmentRule(
+            new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), TimeSpan.FromHours(4.5), start, end);
+        TimeZoneInfo zone = TimeZoneInfo.CreateCustomTimeZone(
+            "FourAndHalfHourGap", TimeSpan.Zero, "Four-and-a-half-hour gap", "Standard", "Daylight", [rule]);
+        var instant = new DateTimeOffset(2024, 6, 1, 6, 0, 0, TimeSpan.Zero);
+
+        DateTimeOffset result = instant.ToStartOfTzDay(zone);
+
+        result.Should().Be(new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
     public void ToStartOfTzDay_DuringDstFold_EasternTime()
     {
         var tz = GetEasternTimeZone();
