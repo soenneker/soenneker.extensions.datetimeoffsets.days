@@ -1,7 +1,6 @@
 using System;
 using AwesomeAssertions;
 using Soenneker.Enums.DayOfWeek;
-using Soenneker.Extensions.DateTimeOffsets.Days;
 using Soenneker.Tests.Unit;
 
 namespace Soenneker.Extensions.DateTimeOffsets.Days.Tests;
@@ -20,32 +19,32 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToStartOfDay_ExactlyAtMidnight_ReturnsSame()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero);
-        var result = dto.ToStartOfDay();
+        DateTimeOffset result = dto.ToStartOfDay();
         result.Should().Be(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero));
     }
 
     [Test]
     public void ToStartOfDay_OneTickBeforeMidnight_ReturnsPreviousDayStart()
     {
-        var dto = new DateTimeOffset(2024, 6, 16, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
-        var result = dto.ToStartOfDay();
+        DateTimeOffset dto = new DateTimeOffset(2024, 6, 16, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
+        DateTimeOffset result = dto.ToStartOfDay();
         result.Should().Be(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero));
     }
 
     [Test]
     public void ToStartOfDay_OneTickAfterMidnight_ReturnsCurrentDayStart()
     {
-        var dto = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero).AddTicks(1);
-        var result = dto.ToStartOfDay();
+        DateTimeOffset dto = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero).AddTicks(1);
+        DateTimeOffset result = dto.ToStartOfDay();
         result.Should().Be(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero));
     }
 
     [Test]
     public void ToStartOfDay_PreservesNonZeroOffset()
     {
-        var offset = TimeSpan.FromHours(14);
+        TimeSpan offset = TimeSpan.FromHours(14);
         var dto = new DateTimeOffset(2024, 7, 4, 23, 59, 59, offset);
-        var result = dto.ToStartOfDay();
+        DateTimeOffset result = dto.ToStartOfDay();
         result.Offset.Should().Be(offset);
         result.Should().Be(new DateTimeOffset(2024, 7, 4, 0, 0, 0, offset));
     }
@@ -53,9 +52,9 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void ToStartOfDay_NegativeOffset()
     {
-        var offset = TimeSpan.FromHours(-12);
+        TimeSpan offset = TimeSpan.FromHours(-12);
         var dto = new DateTimeOffset(2024, 1, 1, 12, 30, 0, offset);
-        var result = dto.ToStartOfDay();
+        DateTimeOffset result = dto.ToStartOfDay();
         result.Offset.Should().Be(offset);
         result.Should().Be(new DateTimeOffset(2024, 1, 1, 0, 0, 0, offset));
     }
@@ -64,8 +63,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToEndOfDay_LeapYearFeb29_LastTickBeforeMar1()
     {
         var dto = new DateTimeOffset(2024, 2, 29, 15, 30, 0, TimeSpan.Zero);
-        var result = dto.ToEndOfDay();
-        var expected = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
+        DateTimeOffset result = dto.ToEndOfDay();
+        DateTimeOffset expected = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
         result.Should().Be(expected);
     }
 
@@ -73,8 +72,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToEndOfDay_YearBoundary_LastTickOfDec31()
     {
         var dto = new DateTimeOffset(2023, 12, 31, 23, 59, 59, TimeSpan.Zero);
-        var result = dto.ToEndOfDay();
-        var expected = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
+        DateTimeOffset result = dto.ToEndOfDay();
+        DateTimeOffset expected = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
         result.Should().Be(expected);
     }
 
@@ -82,7 +81,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToStartOfNextDay_LeapYearFeb29_ReturnsMar1()
     {
         var dto = new DateTimeOffset(2024, 2, 29, 12, 0, 0, TimeSpan.Zero);
-        var result = dto.ToStartOfNextDay();
+        DateTimeOffset result = dto.ToStartOfNextDay();
         result.Should().Be(new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero));
     }
 
@@ -90,7 +89,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToStartOfPreviousDay_Jan1_ReturnsDec31PreviousYear()
     {
         var dto = new DateTimeOffset(2024, 1, 1, 0, 0, 1, TimeSpan.Zero);
-        var result = dto.ToStartOfPreviousDay();
+        DateTimeOffset result = dto.ToStartOfPreviousDay();
         result.Should().Be(new DateTimeOffset(2023, 12, 31, 0, 0, 0, TimeSpan.Zero));
     }
 
@@ -98,8 +97,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToEndOfPreviousDay_Mar1_ReturnsLastTickOfFeb29InLeapYear()
     {
         var dto = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero);
-        var result = dto.ToEndOfPreviousDay();
-        var expected = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1); // last tick before Mar 1 = end of Feb 29
+        DateTimeOffset result = dto.ToEndOfPreviousDay();
+        DateTimeOffset expected = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1); // last tick before Mar 1 = end of Feb 29
         result.Should().Be(expected);
     }
 
@@ -107,8 +106,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToEndOfNextDay_LastDayOfMonth_EndOfNextMonthFirstDay()
     {
         var dto = new DateTimeOffset(2024, 1, 31, 23, 59, 59, TimeSpan.Zero);
-        var result = dto.ToEndOfNextDay();
-        var expected = new DateTimeOffset(2024, 2, 2, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
+        DateTimeOffset result = dto.ToEndOfNextDay();
+        DateTimeOffset expected = new DateTimeOffset(2024, 2, 2, 0, 0, 0, TimeSpan.Zero).AddTicks(-1);
         result.Should().Be(expected);
     }
 
@@ -116,10 +115,10 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void AllDayBoundaries_ChainCorrectly()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.Zero);
-        var start = dto.ToStartOfDay();
-        var end = dto.ToEndOfDay();
-        var nextStart = dto.ToStartOfNextDay();
-        var prevEnd = dto.ToEndOfPreviousDay();
+        DateTimeOffset start = dto.ToStartOfDay();
+        DateTimeOffset end = dto.ToEndOfDay();
+        DateTimeOffset nextStart = dto.ToStartOfNextDay();
+        DateTimeOffset prevEnd = dto.ToEndOfPreviousDay();
 
         prevEnd.AddTicks(1).Should().Be(start);
         end.AddTicks(1).Should().Be(nextStart);
@@ -129,8 +128,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void DateTimeOffset_MinValue_DoesNotThrow()
     {
         var dto = DateTimeOffset.MinValue;
-        var start = dto.ToStartOfDay();
-        var end = dto.ToEndOfDay();
+        DateTimeOffset start = dto.ToStartOfDay();
+        DateTimeOffset end = dto.ToEndOfDay();
         start.Should().Be(dto);
         end.Should().Be(dto.AddDays(1).AddTicks(-1));
     }
@@ -138,8 +137,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void SubMillisecondPrecision_PreservedInStartOfDay()
     {
-        var dto = new DateTimeOffset(2024, 6, 15, 12, 30, 45, 123, TimeSpan.Zero).AddTicks(4567);
-        var result = dto.ToStartOfDay();
+        DateTimeOffset dto = new DateTimeOffset(2024, 6, 15, 12, 30, 45, 123, TimeSpan.Zero).AddTicks(4567);
+        DateTimeOffset result = dto.ToStartOfDay();
         (result.Ticks % TimeSpan.TicksPerDay).Should().Be(0);
     }
 
@@ -150,7 +149,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void ToStartOfTzDay_NullTimeZone_ThrowsArgumentNullException()
     {
-        var dto = DateTimeOffset.UtcNow;
+        DateTimeOffset dto = DateTimeOffset.UtcNow;
         Assert.Throws<ArgumentNullException>(() => dto.ToStartOfTzDay(null!));
     }
 
@@ -158,8 +157,8 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToStartOfTzDay_UtcTimeZone_SameAsNonTzForUtcInput()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.Zero);
-        var tzResult = dto.ToStartOfTzDay(TimeZoneInfo.Utc);
-        var simpleResult = dto.ToStartOfDay();
+        DateTimeOffset tzResult = dto.ToStartOfTzDay(TimeZoneInfo.Utc);
+        DateTimeOffset simpleResult = dto.ToStartOfDay();
         tzResult.UtcDateTime.Should().Be(simpleResult.UtcDateTime);
         tzResult.Offset.Should().Be(TimeSpan.Zero);
     }
@@ -168,7 +167,7 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     public void ToStartOfTzDay_InputWithNonUtcOffset_NormalizesToUtc()
     {
         var dto = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.FromHours(5));
-        var tzResult = dto.ToStartOfTzDay(TimeZoneInfo.Utc);
+        DateTimeOffset tzResult = dto.ToStartOfTzDay(TimeZoneInfo.Utc);
         tzResult.Offset.Should().Be(TimeSpan.Zero);
         tzResult.Year.Should().Be(2024);
         tzResult.Month.Should().Be(6);
@@ -180,12 +179,12 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void ToStartOfTzDay_DuringDstGap_EasternTime()
     {
-        var tz = GetEasternTimeZone();
+        TimeZoneInfo tz = GetEasternTimeZone();
         // March 10, 2024 2:30 AM Eastern doesn't exist (spring forward 2->3)
         // Use an instant that is 7:30 UTC = 2:30 AM Eastern (invalid)
         // The method should handle the gap and return the start of that local day
         var utcInstant = new DateTimeOffset(2024, 3, 10, 7, 30, 0, TimeSpan.Zero);
-        var result = utcInstant.ToStartOfTzDay(tz);
+        DateTimeOffset result = utcInstant.ToStartOfTzDay(tz);
         result.Offset.Should().Be(TimeSpan.Zero);
         // Start of March 10 in Eastern is 5:00 UTC (EST) or 4:00 UTC (EDT) - March 10 2024 is after DST so 4:00 UTC
         result.Year.Should().Be(2024);
@@ -196,11 +195,11 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void ToStartOfTzDay_returns_first_valid_minute_for_non_hour_gap()
     {
-        TimeZoneInfo.TransitionTime start = TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 0, 0, 0), 6, 1);
-        TimeZoneInfo.TransitionTime end = TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 0, 0, 0), 10, 1);
-        TimeZoneInfo.AdjustmentRule rule = TimeZoneInfo.AdjustmentRule.CreateAdjustmentRule(
+        var start = TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 0, 0, 0), 6, 1);
+        var end = TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 0, 0, 0), 10, 1);
+        var rule = TimeZoneInfo.AdjustmentRule.CreateAdjustmentRule(
             new DateTime(2024, 1, 1), new DateTime(2024, 12, 31), TimeSpan.FromHours(4.5), start, end);
-        TimeZoneInfo zone = TimeZoneInfo.CreateCustomTimeZone(
+        var zone = TimeZoneInfo.CreateCustomTimeZone(
             "FourAndHalfHourGap", TimeSpan.Zero, "Four-and-a-half-hour gap", "Standard", "Daylight", [rule]);
         var instant = new DateTimeOffset(2024, 6, 1, 6, 0, 0, TimeSpan.Zero);
 
@@ -212,10 +211,10 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void ToStartOfTzDay_DuringDstFold_EasternTime()
     {
-        var tz = GetEasternTimeZone();
+        TimeZoneInfo tz = GetEasternTimeZone();
         // Nov 3, 2024 1:30 AM Eastern exists twice (fall back)
         var utcInstant = new DateTimeOffset(2024, 11, 3, 6, 30, 0, TimeSpan.Zero); // 1:30 AM EDT
-        var result = utcInstant.ToStartOfTzDay(tz);
+        DateTimeOffset result = utcInstant.ToStartOfTzDay(tz);
         result.Offset.Should().Be(TimeSpan.Zero);
         result.Year.Should().Be(2024);
         result.Month.Should().Be(11);
@@ -225,29 +224,29 @@ public sealed class DateTimeOffsetsDayExtensionTests : UnitTest
     [Test]
     public void ToEndOfTzDay_IsOneTickBeforeStartOfNextTzDay()
     {
-        var tz = TimeZoneInfo.Utc;
+        TimeZoneInfo tz = TimeZoneInfo.Utc;
         var dto = new DateTimeOffset(2024, 6, 15, 12, 0, 0, TimeSpan.Zero);
-        var endOfDay = dto.ToEndOfTzDay(tz);
-        var startOfNext = dto.ToStartOfNextTzDay(tz);
+        DateTimeOffset endOfDay = dto.ToEndOfTzDay(tz);
+        DateTimeOffset startOfNext = dto.ToStartOfNextTzDay(tz);
         endOfDay.Should().Be(startOfNext.AddTicks(-1));
     }
 
     [Test]
     public void ToEndOfPreviousTzDay_IsOneTickBeforeStartOfTzDay()
     {
-        var tz = TimeZoneInfo.Utc;
+        TimeZoneInfo tz = TimeZoneInfo.Utc;
         var dto = new DateTimeOffset(2024, 6, 15, 12, 0, 0, TimeSpan.Zero);
-        var endOfPrev = dto.ToEndOfPreviousTzDay(tz);
-        var startOfDay = dto.ToStartOfTzDay(tz);
+        DateTimeOffset endOfPrev = dto.ToEndOfPreviousTzDay(tz);
+        DateTimeOffset startOfDay = dto.ToStartOfTzDay(tz);
         endOfPrev.Should().Be(startOfDay.AddTicks(-1));
     }
 
     [Test]
     public void ToStartOfPreviousTzDay_AcrossYearBoundary()
     {
-        var tz = TimeZoneInfo.Utc;
+        TimeZoneInfo tz = TimeZoneInfo.Utc;
         var dto = new DateTimeOffset(2024, 1, 1, 0, 0, 1, TimeSpan.Zero);
-        var result = dto.ToStartOfPreviousTzDay(tz);
+        DateTimeOffset result = dto.ToStartOfPreviousTzDay(tz);
         result.Year.Should().Be(2023);
         result.Month.Should().Be(12);
         result.Day.Should().Be(31);
