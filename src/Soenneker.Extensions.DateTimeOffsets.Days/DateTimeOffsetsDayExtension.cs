@@ -38,7 +38,7 @@ public static class DateTimeOffsetsDayExtension
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ToStartOfDay(this DateTimeOffset dateTimeOffset) =>
-        new(dateTimeOffset.Year, dateTimeOffset.Month, dateTimeOffset.Day, 0, 0, 0, dateTimeOffset.Offset);
+        new(dateTimeOffset.Date, dateTimeOffset.Offset);
 
     /// <summary>
     /// Returns the end of the day that contains <paramref name="dateTimeOffset"/> (one tick before the next day).
@@ -255,7 +255,7 @@ public static class DateTimeOffsetsDayExtension
         DateTime local = TimeZoneInfo.ConvertTimeFromUtc(utc, tz);
 
         // Construct local midnight (wall time)
-        DateTime localMidnight = new(local.Year, local.Month, local.Day, 0, 0, 0, DateTimeKind.Unspecified);
+        DateTime localMidnight = DateTime.SpecifyKind(local.Date, DateTimeKind.Unspecified);
         if (dayOffset != 0)
             localMidnight = localMidnight.AddDays(dayOffset);
 
